@@ -1,69 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Share Your Review</title>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #fff7f9;
-      color: #333;
-      text-align: center;
-      padding: 50px;
-    }
-    .container {
-      background: #ffffff;
-      border: 2px solid #f5b0c2;
-      border-radius: 16px;
-      padding: 30px;
-      max-width: 500px;
-      margin: auto;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    textarea {
-      width: 100%;
-      height: 150px;
-      border: 1px solid #f5b0c2;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 16px;
-      resize: none;
-    }
-    button {
-      background-color: #f5b0c2;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 20px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    button:hover {
-      background-color: #e69cad;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Forgotten Beauty Funnel</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff7f9;
+    color: #333;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  img.preview {
+    width: 100%;
+    border-radius: 10px;
+    margin: 20px 0;
+  }
+  button {
+    background-color: #f5b0c2;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    cursor: pointer;
+    margin: 20px 10px 10px;
+  }
+  button:hover { background-color: #e69cad; }
+  input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 16px;
+    border: 1px solid #f5b0c2;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+  .progress {
+    height: 10px;
+    width: 100%;
+    background-color: #ffe2eb;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-bar {
+    height: 10px;
+    width: 0%;
+    background-color: #f5b0c2;
+    transition: width 0.3s;
+  }
+  .note { color: red; font-size: 14px; }
+  a { color: #f5b0c2; text-decoration: underline; cursor: pointer; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h2>💖 Share Your Experience</h2>
-    <p>Copy your written review and share it on Amazon in one click!</p>
-    <textarea id="reviewText" placeholder="Paste or write your review here..."></textarea>
-    <br>
-    <button onclick="copyAndRedirect()">Copy & Go to Amazon</button>
+
+<div class="container">
+  <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+
+  <!-- PAGE 1 -->
+  <div id="page1">
+    <h2>Complete the form to get your free E-book <br>“The 7-Day Beauty Detox Plan”</h2>
+    <img class="preview" src="https://drive.google.com/uc?export=view&id=1VpkfeHTJpFxUhv4j7eYFEFJ2zhCmEVgr" alt="Ebook Preview" />
+    <label>Which product did you purchase?</label>
+    <select id="product">
+      <option value="">Select...</option>
+      <option value="None">None</option>
+      <option value="The Forgotten Beauty Apothecary">The Forgotten Beauty Apothecary</option>
+    </select>
+
+    <label>Order number</label>
+    <input type="text" id="order" placeholder="e.g. 123-4567890-1234567" />
+
+    <label>How satisfied are you with The Forgotten Beauty Apothecary?</label>
+    <select id="satisfaction">
+      <option value="">Select...</option>
+      <option value="Very satisfied">Very satisfied</option>
+      <option value="Somewhat satisfied">Somewhat satisfied</option>
+      <option value="Neither">Neither satisfied nor Dissatisfied</option>
+      <option value="Somewhat Dissatisfied">Somewhat Dissatisfied</option>
+      <option value="Very Dissatisfied">Very Dissatisfied</option>
+    </select>
+
+    <label>Have you been using the book for more than 7 days?</label><br>
+    <input type="radio" name="used" value="Yes"> Yes
+    <input type="radio" name="used" value="No"> No<br><br>
+
+    <button onclick="nextPage(1)">Continue</button>
   </div>
 
-  <script>
-    function copyAndRedirect() {
-      const text = document.getElementById('reviewText').value.trim();
-      if (text.length < 40) {
-        alert('Please write at least 40 characters before continuing.');
-        return;
-      }
-      navigator.clipboard.writeText(text);
-      window.open('https://www.amazon.com/review/create-review?asin=YOUR_ASIN_HERE', '_blank');
+  <!-- PAGE 2 -->
+  <div id="page2" style="display:none;">
+    <img class="preview" src="https://drive.google.com/uc?export=view&id=1VpkfeHTJpFxUhv4j7eYFEFJ2zhCmEVgr" alt="Ebook Preview" />
+    <label>Your Name</label>
+    <input type="text" id="name" placeholder="Enter your name" />
+    <label>Email Address</label>
+    <input type="email" id="email" placeholder="Enter your email" />
+    <p>The 7-Day Beauty Detox Plan E-book will be sent to your E-mail address</p>
+    <label>Phone Number (Optional)</label>
+    <input type="text" id="phone" placeholder="Optional" />
+    <button onclick="nextPage(2)">Continue</button><br>
+    <a onclick="prevPage(2)">← Back</a>
+  </div>
+
+  <!-- PAGE 3 -->
+  <div id="page3" style="display:none;">
+    <h2>The 7-Day Beauty Detox Plan</h2>
+    <img class="preview" src="https://drive.google.com/uc?export=view&id=1VpkfeHTJpFxUhv4j7eYFEFJ2zhCmEVgr" alt="Ebook Preview" />
+    <img class="preview" src="https://upload.wikimedia.org/wikipedia/commons/6/65/Book_Icon.png" alt="The Forgotten Beauty Apothecary" style="width:60%;border:none;" />
+    <label>How did you like The Forgotten Beauty Apothecary?</label>
+    <p class="note">Minimum 40 characters to be eligible for redemption</p>
+    <textarea id="review" placeholder="Write your experience..."></textarea>
+    <h3>Please Share Your Experience</h3>
+    <p>Click the button below to copy your written review and share it</p>
+    <button style="background-color:#FF9900" onclick="copyAndOpenAmazon()">Copy & Share on Amazon</button>
+    <br><a onclick="nextPage(3)">Continue →</a>
+  </div>
+
+  <!-- PAGE 4 -->
+  <div id="page4" style="display:none;">
+    <h2>🎉 Thank You!</h2>
+    <p>Thank you for taking the time to fill out the form and for purchasing <strong>The Forgotten Beauty Apothecary</strong>.</p>
+    <p>Your free E-book <strong>The 7-Day Beauty Detox Plan</strong> will be delivered to your email address shortly.</p>
+    <p>If you don’t receive it within 2 hours, please check your spam folder.</p>
+  </div>
+
+</div>
+
+<script>
+let formData = {};
+let currentPage = 1;
+
+function updateProgress(page) {
+  const progress = document.getElementById("progress-bar");
+  const widths = {1: "25%", 2: "50%", 3: "75%", 4: "100%"};
+  progress.style.width = widths[page];
+}
+
+function nextPage(page) {
+  // Validation
+  if (page === 1) {
+    const product = document.getElementById("product").value;
+    const order = document.getElementById("order").value.trim();
+    const satisfaction = document.getElementById("satisfaction").value;
+    const used = document.querySelector('input[name="used"]:checked');
+
+    if (!product || !order || !satisfaction || !used) {
+      alert("Please complete all fields.");
+      return;
     }
-  </script>
+
+    formData = { product, order, satisfaction, used: used.value };
+    document.getElementById("page1").style.display = "none";
+    document.getElementById("page2").style.display = "block";
+    updateProgress(2);
+  }
+
+  else if (page === 2) {
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    if (!name || !email) {
+      alert("Name and email are required.");
+      return;
+    }
+
+    formData = { ...formData, name, email, phone };
+    document.getElementById("page2").style.display = "none";
+
+    if (formData.satisfaction === "Very satisfied") {
+      document.getElementById("page3").style.display = "block";
+      updateProgress(3);
+    } else {
+      document.getElementById("page4").style.display = "block";
+      updateProgress(4);
+    }
+  }
+
+  else if (page === 3) {
+    const review = document.getElementById("review").value.trim();
+    if (review.length < 40) {
+      alert("Please write at least 40 characters.");
+      return;
+    }
+    formData = { ...formData, review };
+    document.getElementById("page3").style.display = "none";
+    document.getElementById("page4").style.display = "block";
+    updateProgress(4);
+  }
+}
+
+function prevPage(page) {
+  document.getElementById("page" + page).style.display = "none";
+  document.getElementById("page" + (page - 1)).style.display = "block";
+  updateProgress(page - 1);
+}
+
+function copyAndOpenAmazon() {
+  const review = document.getElementById("review").value.trim();
+  if (review.length < 40) {
+    alert("Please write at least 40 characters first.");
+    return;
+  }
+  navigator.clipboard.writeText(review);
+  window.open("https://www.amazon.com/review/create-review?asin=YOUR_ASIN_HERE", "_blank");
+}
+</script>
 </body>
 </html>
