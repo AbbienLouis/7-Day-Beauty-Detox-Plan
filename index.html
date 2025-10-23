@@ -217,9 +217,10 @@ function goNext(page) {
       document.getElementById('page3').classList.remove('hidden');
       setProgress(3);
     } else {
-      submitToSheet(); // Skip review step, go to thank you page and save data
-      document.getElementById('page4').classList.remove('hidden');
-      setProgress(4);
+      submitToSheet(() => {
+        document.getElementById('page4').classList.remove('hidden');
+        setProgress(4);
+      });
     }
   } else if (page === 3) {
     const review = document.getElementById('review').value.trim();
@@ -228,10 +229,11 @@ function goNext(page) {
       return;
     }
     state.data.review = review;
-    submitToSheet(); // Save data to Google Sheet
-    document.getElementById('page3').classList.add('hidden');
-    document.getElementById('page4').classList.remove('hidden');
-    setProgress(4);
+    submitToSheet(() => {
+      document.getElementById('page3').classList.add('hidden');
+      document.getElementById('page4').classList.remove('hidden');
+      setProgress(4);
+    });
   }
 }
 
@@ -252,15 +254,23 @@ function copyAndOpen() {
   alert('Your review has been copied. Paste it on Amazon.');
 }
 
-function submitToSheet() {
+function submitToSheet(callback) {
   fetch(SCRIPT_URL, {
     method: 'POST',
-    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(state.data)
-  }).then(() => {
-    console.log("Data sent to Google Sheets successfully.");
-  }).catch(err => console.error('Error!', err.message));
+  })
+  .then(response => response.text())
+  .then(result => {
+    console.log("Google Script Response:", result);
+    if (result === "Duplicate") {
+      alert("This email has already been used. You cannot submit again.");
+      window.location.reload();
+      return;
+    }
+    if (callback) callback();
+  })
+  .catch(err => console.error('Error!', err.message));
 }
 
 setProgress(1);
