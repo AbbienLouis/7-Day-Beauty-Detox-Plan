@@ -182,6 +182,7 @@
 
 <script>
 let state = { page: 1, data: {} };
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSigYOiizfNXWDIaDJGAfUXN4hf9PlP9_LEB7VDX3SBUMP3eeCFwvIWvRywKW2gUmV/exec";
 
 function setProgress(step) {
   document.getElementById('progressBar').style.width = (step * 25) + '%';
@@ -216,6 +217,7 @@ function goNext(page) {
       document.getElementById('page3').classList.remove('hidden');
       setProgress(3);
     } else {
+      submitToSheet(); // Skip review step, go to thank you page and save data
       document.getElementById('page4').classList.remove('hidden');
       setProgress(4);
     }
@@ -225,6 +227,8 @@ function goNext(page) {
       alert('Please write at least 40 characters.');
       return;
     }
+    state.data.review = review;
+    submitToSheet(); // Save data to Google Sheet
     document.getElementById('page3').classList.add('hidden');
     document.getElementById('page4').classList.remove('hidden');
     setProgress(4);
@@ -246,6 +250,17 @@ function copyAndOpen() {
   navigator.clipboard.writeText(review);
   window.open('https://www.amazon.com/dp/B0D4C3B7QL', '_blank');
   alert('Your review has been copied. Paste it on Amazon.');
+}
+
+function submitToSheet() {
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(state.data)
+  }).then(() => {
+    console.log("Data sent to Google Sheets successfully.");
+  }).catch(err => console.error('Error!', err.message));
 }
 
 setProgress(1);
