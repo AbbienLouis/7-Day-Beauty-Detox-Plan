@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Share Your Review</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff7f9;
+      color: #333;
+      text-align: center;
+      padding: 50px;
+    }
+    .container {
+      background: #ffffff;
+      border: 2px solid #f5b0c2;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      border: 1px solid #f5b0c2;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 16px;
+      resize: none;
+    }
+    button {
+      background-color: #f5b0c2;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #e69cad;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>💖 Share Your Experience</h2>
+    <p>Copy your written review and share it on Amazon in one click!</p>
+    <textarea id="reviewText" placeholder="Paste or write your review here..."></textarea>
+    <br>
+    <button onclick="copyAndRedirect()">Copy & Go to Amazon</button>
+  </div>
+
+  <script>
+    function copyAndRedirect() {
+      const text = document.getElementById('reviewText').value.trim();
+      if (text.length < 40) {
+        alert('Please write at least 40 characters before continuing.');
+        return;
+      }
+      navigator.clipboard.writeText(text);
+      window.open('https://www.amazon.com/review/create-review?asin=YOUR_ASIN_HERE', '_blank');
+    }
+  </script>
+</body>
+</html>
