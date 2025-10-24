@@ -151,7 +151,7 @@
     <label>Phone Number (optional)</label>
     <input id="phone" placeholder="Optional">
 
-    <button onclick="goNext(2)">Continue</button>
+    <button onclick="submitForm()">Continue →</button>
     <a href="#" class="back-link" onclick="goPrev(2)">← Back</a>
   </div>
 
@@ -181,99 +181,72 @@
 </div>
 
 <script>
-let state = { page: 1, data: {} };
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSigYOiizfNXWDIaDJGAfUXN4hf9PlP9_LEB7VDX3SBUMP3eeCFwvIWvRywKW2gUmV/exec";
+const AIRTABLE_TOKEN = "pataAVA8iVomKTb6t.6ec95c454a2cc6be9d5af1cd2592cc1e69ca634bbf813d4d7499b47e22212e05";  // 🔒 Replace with your new token
+const BASE_ID = "appHREfD7DhGYBU7Y";           // Your base ID
+const TABLE_NAME = "Form Submissions";         // You can rename this in Airtable
 
-function setProgress(step) {
-  document.getElementById('progressBar').style.width = (step * 25) + '%';
-}
+async function saveToAirtable(formData) {
+  const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}`;
 
-function goNext(page) {
-  if (page === 1) {
-    const product = document.getElementById('product').value.trim();
-    const order = document.getElementById('order').value.trim();
-    const satisfaction = document.getElementById('satisfaction').value;
-    const used = document.querySelector('input[name="used"]:checked');
+  // Check if email already exists to prevent duplicates
+  const checkUrl = `${url}?filterByFormula=${encodeURIComponent(`{Email}='${formData.email}'`)}`;
+  const checkResponse = await fetch(checkUrl, {
+    headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
+  });
+  const checkData = await checkResponse.json();
 
-    if (!product || !order || !satisfaction || !used) {
-      alert('Please fill all fields before continuing.');
-      return;
-    }
+  if (checkData.records && checkData.records.length > 0) {
+    alert("This email has already been used. Please use a different email.");
+    return false;
+  }
 
-    state.data = { product, order, satisfaction, used: used.value };
-    document.getElementById('page1').classList.add('hidden');
-    document.getElementById('page2').classList.remove('hidden');
-    setProgress(2);
-  } else if (page === 2) {
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    if (!name || !email) {
-      alert('Please fill all required fields.');
-      return;
-    }
-    state.data = { ...state.data, name, email, phone: document.getElementById('phone').value.trim() };
-    document.getElementById('page2').classList.add('hidden');
-    if (state.data.satisfaction === 'Very satisfied') {
-      document.getElementById('page3').classList.remove('hidden');
-      setProgress(3);
-    } else {
-      submitToSheet(() => {
-        document.getElementById('page4').classList.remove('hidden');
-        setProgress(4);
-      });
-    }
-  } else if (page === 3) {
-    const review = document.getElementById('review').value.trim();
-    if (review.length < 40) {
-      alert('Please write at least 40 characters.');
-      return;
-    }
-    state.data.review = review;
-    submitToSheet(() => {
-      document.getElementById('page3').classList.add('hidden');
-      document.getElementById('page4').classList.remove('hidden');
-      setProgress(4);
-    });
+  // Add new record
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${AIRTABLE_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      fields: {
+        Name: formData.name,
+        Email: formData.email,
+        Phone: formData.phone || "",
+        Product: formData.product,
+        OrderNumber: formData.order,
+        Satisfaction: formData.satisfaction,
+        Used7Days: formData.used,
+        Review: formData.review || ""
+      }
+    })
+  });
+
+  if (response.ok) {
+    console.log("✅ Form data saved to Airtable");
+    return true;
+  } else {
+    console.error("❌ Failed to save data:", await response.text());
+    alert("Something went wrong while saving your data. Please try again.");
+    return false;
   }
 }
 
-function goPrev(page) {
-  document.getElementById('page' + page).classList.add('hidden');
-  document.getElementById('page' + (page - 1)).classList.remove('hidden');
-  setProgress(page - 1);
-}
+// Modify your existing final form submission function:
+async function submitForm() {
+  const formData = {
+    name: document.querySelector("#name").value.trim(),
+    email: document.querySelector("#email").value.trim(),
+    phone: document.querySelector("#phone").value.trim(),
+    product: document.querySelector("#product").value,
+    order: document.querySelector("#order").value.trim(),
+    satisfaction: document.querySelector("input[name='satisfaction']:checked")?.value || "",
+    used: document.querySelector("input[name='used']:checked")?.value || "",
+    review: document.querySelector("#review")?.value?.trim() || ""
+  };
 
-function copyAndOpen() {
-  const review = document.getElementById('review').value.trim();
-  if (review.length < 40) {
-    alert('Please write at least 40 characters.');
-    return;
-  }
-  navigator.clipboard.writeText(review);
-  window.open('https://www.amazon.com/dp/B0D4C3B7QL', '_blank');
-  alert('Your review has been copied. Paste it on Amazon.');
+  const saved = await saveToAirtable(formData);
+  if (saved) goNext(3);  // Move to the thank-you page
 }
-
-function submitToSheet(callback) {
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(state.data)
-  })
-  .then(response => response.text())
-  .then(result => {
-    console.log("Google Script Response:", result);
-    if (result === "Duplicate") {
-      alert("This email has already been used. You cannot submit again.");
-      window.location.reload();
-      return;
-    }
-    if (callback) callback();
-  })
-  .catch(err => console.error('Error!', err.message));
-}
-
-setProgress(1);
 </script>
 </body>
 </html>
