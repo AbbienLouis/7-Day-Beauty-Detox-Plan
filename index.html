@@ -190,18 +190,20 @@
 </div>
 
 <script>
-const AIRTABLE_TOKEN = "pataAVA8iVomKTb6t.6ec95c454a2cc6be9d5af1cd2592cc1e69ca634bbf813d4d7499b47e22212e05";
+const API_URL = "http://lively-leaf-a580.linkwithjefferson.workers.dev/";  // ✅ Your secure Worker endpoint
 const BASE_ID = "appHREfD7DhGYBU7Y";
 const TABLE_NAME = "Form Submissions";
 
 function setProgress(step) {
   document.getElementById('progressBar').style.width = (step * 25) + '%';
 }
+
 function goNext(page) {
   document.getElementById('page' + page).classList.add('hidden');
   document.getElementById('page' + (page + 1)).classList.remove('hidden');
   setProgress(page + 1);
 }
+
 function goPrev(page) {
   document.getElementById('page' + page).classList.add('hidden');
   document.getElementById('page' + (page - 1)).classList.remove('hidden');
@@ -220,46 +222,35 @@ function copyAndOpen() {
 }
 
 async function saveToAirtable(formData) {
-  document.getElementById("loading").classList.remove("hidden");
-  const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}`;
+  document.getElementById("loading")?.classList.remove("hidden");
 
-  // Check duplicate emails
-  const checkUrl = `${url}?filterByFormula=${encodeURIComponent(`{Email}='${formData.email}'`)}`;
-  const checkResponse = await fetch(checkUrl, {
-    headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
-  });
-  const checkData = await checkResponse.json();
-  if (checkData.records && checkData.records.length > 0) {
-    alert("This email has already been used. Please use a different email.");
-    document.getElementById("loading").classList.add("hidden");
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    });
+
+    const result = await response.json();
+    console.log("Worker Response:", result);
+
+    if (result.status === "duplicate") {
+      alert("This email has already been used. Please use a different email.");
+      return false;
+    }
+
+    if (result.status === "success") return true;
+
+    alert("Something went wrong while saving your data. Please try again.");
     return false;
+
+  } catch (err) {
+    console.error("❌ Error:", err);
+    alert("Connection failed. Please try again.");
+    return false;
+  } finally {
+    document.getElementById("loading")?.classList.add("hidden");
   }
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${AIRTABLE_TOKEN}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      fields: {
-        Name: formData.name,
-        Email: formData.email,
-        Phone: formData.phone || "",
-        Product: formData.product,
-        OrderNumber: formData.order,
-        Satisfaction: formData.satisfaction,
-        Used7Days: formData.used,
-        Review: formData.review || ""
-      }
-    })
-  });
-
-  document.getElementById("loading").classList.add("hidden");
-
-  if (response.ok) return true;
-  alert("Something went wrong while saving your data. Please try again.");
-  return false;
 }
 
 async function handleSubmit() {
@@ -295,5 +286,6 @@ document.getElementById("finalContinue").onclick = () => goNext(3);
 
 setProgress(1);
 </script>
+
 </body>
 </html>
