@@ -218,7 +218,8 @@ function copyAndOpen() {
 }
 
 async function saveToAirtable(formData) {
-  document.getElementById("loading").classList.remove("hidden");
+  // show loading
+  document.getElementById("loading")?.classList.remove("hidden");
 
   try {
     const response = await fetch(API_URL, {
@@ -227,24 +228,46 @@ async function saveToAirtable(formData) {
       body: JSON.stringify(formData)
     });
 
-    const result = await response.json();
-    document.getElementById("loading").classList.add("hidden");
+    // try to parse JSON, but fall back to text
+    let resultText = "";
+    let resultJson = null;
+    try {
+      resultJson = await response.json();
+      resultText = JSON.stringify(resultJson);
+    } catch (e) {
+      resultText = await response.text();
+    }
 
-    if (result.status === "duplicate") {
-      alert("This email has already been used. Please use a different one.");
+    console.log("Worker HTTP status:", response.status, "ok:", response.ok);
+    console.log("Worker response body:", resultText);
+
+    // hide loading
+    document.getElementById("loading")?.classList.add("hidden");
+
+    // If your Worker follows the earlier pattern
+    if (resultJson && resultJson.status === "duplicate") {
+      alert("This email has already been used. (duplicate)");
+      return false;
+    }
+    if (resultJson && resultJson.status === "success") {
+      return true;
+    }
+
+    // If Airtable returned an error object:
+    if (resultJson && resultJson.error) {
+      const msg = resultJson.error.message || JSON.stringify(resultJson.error);
+      alert("Airtable error: " + msg);
       return false;
     }
 
-    if (result.status === "success") return true;
-
-    console.error(result);
-    alert("Something went wrong while saving your data. Please try again.");
+    // Generic handling: show the raw response in an alert
+    alert("Save failed. Worker response: " + resultText + " (HTTP " + response.status + ")");
     return false;
 
   } catch (err) {
-    console.error("Fetch error:", err);
-    alert("Connection failed. Please try again.");
-    document.getElementById("loading").classList.add("hidden");
+    console.error("Fetch/network error:", err);
+    document.getElementById("loading")?.classList.add("hidden");
+    alert("Connection failed (network). See console for details.");
     return false;
   }
 }
