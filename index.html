@@ -44,8 +44,8 @@
   }
 
   .preview {
-    width: 50%;
-    max-width: 340px;
+    width: 60%;
+    max-width: 280px;
     display: block;
     margin: 18px auto;
     border-radius: 12px;
@@ -92,6 +92,7 @@
     margin-top: 12px;
     text-decoration: none;
   }
+
   .note {
     color: red;
     font-size: 0.9rem;
@@ -99,6 +100,12 @@
   }
 
   .hidden { display: none; }
+
+  .loading {
+    text-align: center;
+    color: #d26e90;
+    font-weight: 500;
+  }
 </style>
 </head>
 <body>
@@ -135,7 +142,7 @@
       <label><input type="radio" name="used" value="No"> No</label>
     </div>
 
-    <button onclick="goNext(1)">Continue</button>
+    <button id="btn1">Continue</button>
   </div>
 
   <!-- PAGE 2 -->
@@ -151,15 +158,15 @@
     <label>Phone Number (optional)</label>
     <input id="phone" placeholder="Optional">
 
-    <button onclick="submitForm()">Continue →</button>
-    <a href="#" class="back-link" onclick="goPrev(2)">← Back</a>
+    <button id="btn2">Continue →</button>
+    <a href="#" class="back-link" id="back2">← Back</a>
   </div>
 
   <!-- PAGE 3 -->
   <div id="page3" class="hidden">
     <img src="assets/ebook-preview.png" class="preview" alt="Gift Ebook">
     <h1>The 7-Day Beauty Detox Plan</h1>
-    <img src="assets/forgotten-beauty.png" class="preview" style="width:20%; max-width:280px;" alt="The Forgotten Beauty Apothecary">
+    <img src="assets/forgotten-beauty.png" class="preview" style="width:40%; max-width:240px;" alt="The Forgotten Beauty Apothecary">
     
     <label>How did you like The Forgotten Beauty Apothecary?</label>
     <p class="note">Minimum 40 characters to be eligible for redemption</p>
@@ -167,8 +174,8 @@
 
     <h3>Please Share Your Experience</h3>
     <p>Click the button below to copy your written review and share it</p>
-    <button style="background:#ff9900" onclick="copyAndOpen()">Copy & Share on Amazon</button>
-    <button onclick="goNext(3)">Continue →</button>
+    <button id="copyBtn" style="background:#ff9900">Copy & Share on Amazon</button>
+    <button id="finalContinue">Continue →</button>
   </div>
 
   <!-- PAGE 4 -->
@@ -178,29 +185,56 @@
     <p>Your free gift <b>“The 7-Day Beauty Detox Plan”</b> will be delivered to your chosen email address shortly.</p>
     <p>Please also check your spam folder if you don’t receive it within 2 hours.</p>
   </div>
+
+  <p id="loading" class="loading hidden">Saving your responses...</p>
 </div>
 
 <script>
-const AIRTABLE_TOKEN = "pataAVA8iVomKTb6t.6ec95c454a2cc6be9d5af1cd2592cc1e69ca634bbf813d4d7499b47e22212e05";  // 🔒 Replace with your new token
-const BASE_ID = "appHREfD7DhGYBU7Y";           // Your base ID
-const TABLE_NAME = "Form Submissions";         // You can rename this in Airtable
+const AIRTABLE_TOKEN = "pataAVA8iVomKTb6t.6ec95c454a2cc6be9d5af1cd2592cc1e69ca634bbf813d4d7499b47e22212e05";
+const BASE_ID = "appHREfD7DhGYBU7Y";
+const TABLE_NAME = "Form Submissions";
+
+function setProgress(step) {
+  document.getElementById('progressBar').style.width = (step * 25) + '%';
+}
+function goNext(page) {
+  document.getElementById('page' + page).classList.add('hidden');
+  document.getElementById('page' + (page + 1)).classList.remove('hidden');
+  setProgress(page + 1);
+}
+function goPrev(page) {
+  document.getElementById('page' + page).classList.add('hidden');
+  document.getElementById('page' + (page - 1)).classList.remove('hidden');
+  setProgress(page - 1);
+}
+
+function copyAndOpen() {
+  const review = document.getElementById('review').value.trim();
+  if (review.length < 40) {
+    alert('Please write at least 40 characters.');
+    return;
+  }
+  navigator.clipboard.writeText(review);
+  window.open('https://www.amazon.com/dp/B0D4C3B7QL', '_blank');
+  alert('Your review has been copied. Paste it on Amazon.');
+}
 
 async function saveToAirtable(formData) {
+  document.getElementById("loading").classList.remove("hidden");
   const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}`;
 
-  // Check if email already exists to prevent duplicates
+  // Check duplicate emails
   const checkUrl = `${url}?filterByFormula=${encodeURIComponent(`{Email}='${formData.email}'`)}`;
   const checkResponse = await fetch(checkUrl, {
     headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
   });
   const checkData = await checkResponse.json();
-
   if (checkData.records && checkData.records.length > 0) {
     alert("This email has already been used. Please use a different email.");
+    document.getElementById("loading").classList.add("hidden");
     return false;
   }
 
-  // Add new record
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -221,32 +255,45 @@ async function saveToAirtable(formData) {
     })
   });
 
-  if (response.ok) {
-    console.log("✅ Form data saved to Airtable");
-    return true;
-  } else {
-    console.error("❌ Failed to save data:", await response.text());
-    alert("Something went wrong while saving your data. Please try again.");
-    return false;
+  document.getElementById("loading").classList.add("hidden");
+
+  if (response.ok) return true;
+  alert("Something went wrong while saving your data. Please try again.");
+  return false;
+}
+
+async function handleSubmit() {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const product = document.getElementById("product").value;
+  const order = document.getElementById("order").value.trim();
+  const satisfaction = document.getElementById("satisfaction").value;
+  const used = document.querySelector("input[name='used']:checked")?.value || "";
+  const review = document.getElementById("review").value.trim();
+
+  if (!name || !email || !product || !order || !satisfaction || !used) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  const formData = { name, email, phone, product, order, satisfaction, used, review };
+
+  const saved = await saveToAirtable(formData);
+  if (saved) {
+    if (satisfaction === "Very satisfied") goNext(2);
+    else goNext(3);
   }
 }
 
-// Modify your existing final form submission function:
-async function submitForm() {
-  const formData = {
-    name: document.querySelector("#name").value.trim(),
-    email: document.querySelector("#email").value.trim(),
-    phone: document.querySelector("#phone").value.trim(),
-    product: document.querySelector("#product").value,
-    order: document.querySelector("#order").value.trim(),
-    satisfaction: document.querySelector("input[name='satisfaction']:checked")?.value || "",
-    used: document.querySelector("input[name='used']:checked")?.value || "",
-    review: document.querySelector("#review")?.value?.trim() || ""
-  };
+// EVENT LISTENERS
+document.getElementById("btn1").onclick = () => goNext(1);
+document.getElementById("btn2").onclick = handleSubmit;
+document.getElementById("back2").onclick = () => goPrev(2);
+document.getElementById("copyBtn").onclick = copyAndOpen;
+document.getElementById("finalContinue").onclick = () => goNext(3);
 
-  const saved = await saveToAirtable(formData);
-  if (saved) goNext(3);  // Move to the thank-you page
-}
+setProgress(1);
 </script>
 </body>
 </html>
