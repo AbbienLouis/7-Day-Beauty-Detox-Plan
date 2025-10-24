@@ -192,20 +192,25 @@
 <script>
 const API_URL = "https://lively-leaf-a580.linkwithjefferson.workers.dev/";
 
+// 🔹 Progress bar control
 function setProgress(step) {
   document.getElementById('progressBar').style.width = (step * 25) + '%';
 }
+
+// 🔹 Navigation between pages
 function goNext(page) {
   document.getElementById('page' + page).classList.add('hidden');
   document.getElementById('page' + (page + 1)).classList.remove('hidden');
   setProgress(page + 1);
 }
+
 function goPrev(page) {
   document.getElementById('page' + page).classList.add('hidden');
   document.getElementById('page' + (page - 1)).classList.remove('hidden');
   setProgress(page - 1);
 }
 
+// 🔹 Amazon Review Copy Button
 function copyAndOpen() {
   const review = document.getElementById('review').value.trim();
   if (review.length < 40) {
@@ -217,23 +222,34 @@ function copyAndOpen() {
   alert('Your review has been copied. Paste it on Amazon.');
 }
 
+// 🔹 Save to Airtable via Cloudflare Worker
 async function saveToAirtable(formData) {
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData)
-  });
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    });
 
-  if (response.ok) {
-    console.log("✅ Form data saved");
-    return true;
-  } else {
-    console.error("❌ Failed to save:", await response.text());
-    alert("Something went wrong while saving your data. Please try again.");
+    const result = await response.json();
+    console.log("Worker response:", result);
+
+    if (response.ok && result.status === "ok") {
+      console.log("✅ Data saved successfully");
+      return true;
+    } else {
+      console.error("❌ Worker error:", result);
+      alert("Something went wrong while saving your data. Please try again.");
+      return false;
+    }
+  } catch (err) {
+    console.error("⚠️ Network error:", err);
+    alert("Connection failed. Please check your internet or try again later.");
     return false;
   }
 }
 
+// 🔹 Handle form submission
 async function handleSubmit() {
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -250,9 +266,27 @@ async function handleSubmit() {
   }
 
   const formData = { name, email, phone, product, order, satisfaction, used, review };
+
   const saved = await saveToAirtable(formData);
   if (saved) goNext(3);
 }
+
+// 🔹 Attach button listeners
+window.addEventListener("DOMContentLoaded", () => {
+  const btn1 = document.querySelector("#page1 button");
+  const btn2 = document.querySelector("#page2 button");
+  const back2 = document.querySelector("#page2 .back-link");
+  const copyBtn = document.querySelector("#page3 button[style*='#ff9900']");
+  const finalContinue = document.querySelector("#page3 button:not([style*='#ff9900'])");
+
+  if (btn1) btn1.onclick = () => goNext(1);
+  if (btn2) btn2.onclick = handleSubmit;
+  if (back2) back2.onclick = () => goPrev(2);
+  if (copyBtn) copyBtn.onclick = copyAndOpen;
+  if (finalContinue) finalContinue.onclick = () => goNext(3);
+
+  setProgress(1);
+});
 </script>
 </body>
 </html>
