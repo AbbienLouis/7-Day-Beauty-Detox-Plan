@@ -190,20 +190,16 @@
 </div>
 
 <script>
-const API_URL = "http://lively-leaf-a580.linkwithjefferson.workers.dev/";  // ✅ Your secure Worker endpoint
-const BASE_ID = "appHREfD7DhGYBU7Y";
-const TABLE_NAME = "Form Submissions";
+const API_URL = "https://lively-leaf-a580.linkwithjefferson.workers.dev/";
 
 function setProgress(step) {
   document.getElementById('progressBar').style.width = (step * 25) + '%';
 }
-
 function goNext(page) {
   document.getElementById('page' + page).classList.add('hidden');
   document.getElementById('page' + (page + 1)).classList.remove('hidden');
   setProgress(page + 1);
 }
-
 function goPrev(page) {
   document.getElementById('page' + page).classList.add('hidden');
   document.getElementById('page' + (page - 1)).classList.remove('hidden');
@@ -222,7 +218,7 @@ function copyAndOpen() {
 }
 
 async function saveToAirtable(formData) {
-  document.getElementById("loading")?.classList.remove("hidden");
+  document.getElementById("loading").classList.remove("hidden");
 
   try {
     const response = await fetch(API_URL, {
@@ -232,24 +228,24 @@ async function saveToAirtable(formData) {
     });
 
     const result = await response.json();
-    console.log("Worker Response:", result);
+    document.getElementById("loading").classList.add("hidden");
 
     if (result.status === "duplicate") {
-      alert("This email has already been used. Please use a different email.");
+      alert("This email has already been used. Please use a different one.");
       return false;
     }
 
     if (result.status === "success") return true;
 
+    console.error(result);
     alert("Something went wrong while saving your data. Please try again.");
     return false;
 
   } catch (err) {
-    console.error("❌ Error:", err);
+    console.error("Fetch error:", err);
     alert("Connection failed. Please try again.");
+    document.getElementById("loading").classList.add("hidden");
     return false;
-  } finally {
-    document.getElementById("loading")?.classList.add("hidden");
   }
 }
 
