@@ -1,262 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The 7-Day Beauty Detox Plan</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The 7-Day Beauty Detox Funnel</title>
 <style>
-  body {
-    font-family: "Poppins", sans-serif;
-    background: #faf6f3;
-    color: #333;
-    text-align: center;
-    padding: 20px;
+  :root {
+    --brand1: #d26e90;
+    --brand2: #e49cb1;
+    --accent: #ff9900;
   }
-
-  .hidden { display: none; }
-  .container {
-    max-width: 600px;
-    margin: auto;
-    background: white;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    animation: fadeIn 0.8s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  input, textarea, select, button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-  }
-
-  button {
-    background: #7b4b2a;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: 0.3s;
-  }
-
-  button:hover {
-    background: #9d633a;
-  }
-
-  .progress {
-    width: 100%;
-    background: #eee;
-    height: 8px;
-    border-radius: 10px;
-    margin-bottom: 25px;
-    overflow: hidden;
-  }
-
-  .progress-bar {
-    height: 8px;
-    width: 0%;
-    background: linear-gradient(90deg, #7b4b2a, #ffb46a);
-    transition: width 0.5s ease-in-out;
-  }
-
-  textarea {
-    height: 120px;
-  }
-
-  .note {
-    font-size: 0.85em;
-    color: #777;
-  }
-
-  .preview {
-    margin: 20px auto;
-    border-radius: 8px;
-  }
+  body { font-family: "Poppins", system-ui, Arial; background:#fff9f9; margin:0; padding:24px; display:flex; justify-content:center; }
+  .card { width:100%; max-width:640px; background:#fff; border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,0.06); padding:28px; }
+  h1 { color:var(--brand1); font-size:1.25rem; text-align:center; margin:0 0 12px; }
+  .progress-outer { background:#f3d7e0; height:10px; border-radius:10px; overflow:hidden; margin-bottom:18px; }
+  .progress-inner { height:10px; width:0%; background:linear-gradient(90deg,var(--brand1),var(--brand2)); transition:width 500ms cubic-bezier(.2,.8,.2,1); }
+  .preview { display:block; margin:12px auto; max-width:360px; width:60%; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+  label { display:block; margin-top:12px; font-weight:600; color:#444; }
+  input, select, textarea { width:100%; padding:10px 12px; margin-top:8px; border:1px solid #e6e6e6; border-radius:8px; font-size:0.95rem; }
+  textarea { min-height:120px; resize:vertical; }
+  .row { display:flex; gap:10px; }
+  .btn { margin-top:16px; width:100%; padding:12px; border-radius:10px; border:0; cursor:pointer; font-weight:700; color:#fff; background:linear-gradient(90deg,var(--brand1),var(--brand2)); }
+  .btn.secondary { background:#fff; color:var(--brand1); border:1px solid #f0d0df; }
+  .note { color:#d9534f; font-size:0.9rem; margin-top:6px; }
+  .link { display:block; text-align:center; margin-top:10px; color:var(--brand1); text-decoration:underline; cursor:pointer; }
+  .hidden { display:none; }
+  .small-preview { width:36%; max-width:200px; display:block; margin:12px auto; }
+  .saving { text-align:center; color:var(--brand1); font-weight:600; margin-top:10px; }
 </style>
 </head>
 <body>
+  <div class="card" role="main">
+    <div class="progress-outer"><div id="progressBar" class="progress-inner"></div></div>
 
-<div class="container">
-  <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <!-- PAGE 1 -->
+    <section id="page1">
+      <h1>Complete the form to get your free E-book<br>“The 7-Day Beauty Detox Plan”</h1>
+      <img src="assets/ebook-preview.png" alt="The 7-Day Beauty Detox Plan" class="preview" />
+      <label for="product">Which product did you purchase?</label>
+      <select id="product">
+        <option value="">Select...</option>
+        <option value="None">None</option>
+        <option value="The Forgotten Beauty Apothecary">The Forgotten Beauty Apothecary</option>
+      </select>
 
-  <!-- PAGE 1 -->
-  <div id="page1">
-    <h1>The 7-Day Beauty Detox Plan</h1>
-    <p>We’d love to hear how you enjoyed <strong>The Forgotten Beauty Apothecary</strong></p>
-    <label>How satisfied are you with the product?</label>
-    <select id="satisfaction">
-      <option value="">Select...</option>
-      <option>Very satisfied</option>
-      <option>Satisfied</option>
-      <option>Neutral</option>
-      <option>Dissatisfied</option>
-    </select>
+      <label for="order">Order number</label>
+      <input id="order" placeholder="e.g. 113-5478902-2745635" />
 
-    <label>Did you use it for 7 days?</label>
-    <select id="used">
-      <option value="">Select...</option>
-      <option>Yes</option>
-      <option>No</option>
-    </select>
+      <label for="satisfaction">How satisfied are you with The Forgotten Beauty Apothecary?</label>
+      <select id="satisfaction">
+        <option value="">Select...</option>
+        <option>Very satisfied</option>
+        <option>Somewhat satisfied</option>
+        <option>Neither satisfied nor Dissatisfied</option>
+        <option>Somewhat Dissatisfied</option>
+        <option>Very Dissatisfied</option>
+      </select>
 
-    <button id="next1">Continue →</button>
+      <label>Have you been using The Forgotten Beauty Apothecary for more than 7 days?</label>
+      <div style="margin-top:8px;">
+        <label style="font-weight:500"><input type="radio" name="used" value="Yes" /> Yes</label>
+        <label style="font-weight:500; margin-left:12px;"><input type="radio" name="used" value="No" /> No</label>
+      </div>
+
+      <button id="btnNext1" class="btn">Continue</button>
+    </section>
+
+    <!-- PAGE 2 -->
+    <section id="page2" class="hidden">
+      <h1>Claim Your Free E-book</h1>
+      <img src="assets/ebook-preview.png" alt="Gift" class="preview" />
+      <label for="name">Your Name</label>
+      <input id="name" type="text" placeholder="Enter your name" />
+
+      <label for="email">E-mail Address</label>
+      <input id="email" type="email" placeholder="Enter your email" />
+      <p class="note" style="color:#555; font-weight:500; font-size:0.95rem">The 7-Day Beauty Detox Plan E-book will be sent to your E-mail address</p>
+
+      <label for="phone">Phone Number (optional)</label>
+      <input id="phone" placeholder="Optional" />
+
+      <button id="btnNext2" class="btn">Continue →</button>
+      <a id="backTo1" class="link">← Back</a>
+      <p id="savingText" class="saving hidden">Saving your responses...</p>
+    </section>
+
+    <!-- PAGE 3 -->
+    <section id="page3" class="hidden">
+      <img src="assets/ebook-preview.png" alt="Gift" class="preview" />
+      <h1>The 7-Day Beauty Detox Plan</h1>
+      <img src="assets/forgotten-beauty.png" alt="The Forgotten Beauty Apothecary" class="small-preview" />
+
+      <label for="review">How did you like The Forgotten Beauty Apothecary?</label>
+      <p class="note">Minimum 40 characters to be eligible for redemption</p>
+      <textarea id="review" placeholder="Write your experience here..."></textarea>
+
+      <h3>Please Share Your Experience</h3>
+      <p style="color:#555">Click the button below to copy your written review and share it</p>
+      <button id="copyAmazon" class="btn" style="background:var(--accent);">Copy & Share on Amazon</button>
+      <button id="btnNext3" class="btn secondary" style="background:linear-gradient(90deg,var(--brand1),var(--brand2)); color:#fff; margin-top:10px;">Continue →</button>
+      <a id="backTo2" class="link">← Back</a>
+    </section>
+
+    <!-- THANK YOU -->
+    <section id="page4" class="hidden">
+      <h1>🎉 Thank You!</h1>
+      <p>Thank you for taking the time to fill the form, for purchasing <b>The Forgotten Beauty Apothecary</b>, and for leaving a review.</p>
+      <p>Your free gift <b>“The 7-Day Beauty Detox Plan”</b> will be delivered to your chosen email address shortly — please check your spam folder if you don’t receive it within 2 hours.</p>
+    </section>
   </div>
-
-  <!-- PAGE 2 -->
-  <div id="page2" class="hidden">
-    <h1>Claim Your Gift</h1>
-    <p>Enter your details to receive your free detox ebook</p>
-
-    <input id="name" type="text" placeholder="Full Name" required>
-    <input id="email" type="email" placeholder="Email Address" required>
-    <input id="phone" type="text" placeholder="Phone (optional)">
-
-    <button id="next2">Continue →</button>
-  </div>
-
-  <!-- PAGE 3 -->
-  <div id="page3" class="hidden">
-    <img src="assets/ebook-preview.png" class="preview" alt="Gift Ebook">
-    <h1>The 7-Day Beauty Detox Plan</h1>
-    <img src="assets/forgotten-beauty.png" class="preview" style="width:30%; max-width:260px;" alt="The Forgotten Beauty Apothecary">
-    
-    <label>How did you like The Forgotten Beauty Apothecary?</label>
-    <p class="note">Minimum 40 characters to be eligible for redemption</p>
-    <textarea id="review" placeholder="Write your experience here..." required></textarea>
-
-    <h3>Please Share Your Experience</h3>
-    <p>Click the button below to copy your written review and share it</p>
-    <button style="background:#ff9900" id="copyBtn">Copy & Share on Amazon</button>
-    <button id="finalContinue">Continue →</button>
-  </div>
-
-  <!-- THANK YOU PAGE -->
-  <div id="thankyou" class="hidden">
-    <h1>Thank You!</h1>
-    <p>Your review and feedback mean the world to us 💛</p>
-    <p>You’ll receive your free ebook shortly.</p>
-  </div>
-</div>
 
 <script>
-const API_URL = "YOUR_WORKER_URL_HERE";
-const progressBar = document.getElementById("progressBar");
-const pages = ["page1", "page2", "page3", "thankyou"];
-let currentPage = 0;
-const totalSteps = 3; // 3 input pages
+/* -------- CONFIG -------- */
+const API_URL = "https://lively-leaf-a580.linkwithjefferson.workers.dev/"; // <-- your Worker URL
+const pages = ["page1","page2","page3","page4"];
+let step = 0;
 
-function showPage(index) {
-  pages.forEach((id, i) => {
-    document.getElementById(id).classList.toggle("hidden", i !== index);
-  });
-  updateProgress(index);
+/* ------- UI helpers ------- */
+function showPage(index){
+  step = index;
+  pages.forEach((id,i)=> document.getElementById(id).classList.toggle("hidden", i!==index));
+  // progress: 0 of 3 -> 0%, 1->33%, 2->66%, 3->100%
+  const pct = Math.round((index / 3) * 100);
+  document.getElementById("progressBar").style.width = pct + "%";
 }
 
-function updateProgress(index) {
-  const progress = ((index) / totalSteps) * 100;
-  progressBar.style.width = progress + "%";
-}
-
-// Transition buttons
-document.getElementById("next1").onclick = () => {
+/* ------- Validation & flow ------- */
+document.getElementById("btnNext1").addEventListener("click", ()=>{
+  const product = document.getElementById("product").value;
+  const order = document.getElementById("order").value.trim();
   const satisfaction = document.getElementById("satisfaction").value;
-  const used = document.getElementById("used").value;
-  if (!satisfaction || !used) return alert("Please complete both fields first.");
-  currentPage = 1;
+  const used = document.querySelector("input[name='used']:checked");
+  if (!product) return alert("Please select which product you purchased.");
+  if (!order) return alert("Please enter your order number.");
+  if (!satisfaction) return alert("Please choose your satisfaction.");
+  if (!used) return alert("Please answer whether you have used it for 7 days.");
   showPage(1);
-};
+});
 
-document.getElementById("next2").onclick = async () => {
+document.getElementById("backTo1").addEventListener("click", (e)=>{ e.preventDefault(); showPage(0); });
+
+document.getElementById("btnNext2").addEventListener("click", async ()=>{
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const product = document.getElementById("product").value;
+  const order = document.getElementById("order").value.trim();
+  const satisfaction = document.getElementById("satisfaction").value;
+  const used = document.querySelector("input[name='used']:checked')?.value || "";
+
   if (!name || !email) return alert("Please enter your name and email.");
 
-  const formData = {
-    name, email,
-    phone: document.getElementById("phone").value,
-    product: "The Forgotten Beauty Apothecary",
-    order: "",
-    satisfaction: document.getElementById("satisfaction").value,
-    used: document.getElementById("used").value,
-    review: ""
+  // Show saving
+  document.getElementById("savingText").classList.remove("hidden");
+
+  const payload = {
+    name, email, phone, product, order, satisfaction, used, review: ""
   };
 
-  const saved = await saveToAirtable(formData);
-  if (saved) {
-    currentPage = 2;
-    showPage(2);
+  try {
+    const resp = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const j = await resp.json();
+    console.log("Worker response (page2):", j);
+
+    document.getElementById("savingText").classList.add("hidden");
+
+    if (j.status === "duplicate") {
+      alert("This email has already been used. You cannot submit with the same email.");
+      return;
+    }
+    if (j.status === "ok") {
+      // record created successfully; proceed
+      // If they were very satisfied we'll show review page next, else skip to thank you
+      if (satisfaction === "Very satisfied") showPage(2);
+      else showPage(3);
+      return;
+    }
+    // any other case:
+    alert("Something went wrong while saving your data. Please try again.");
+  } catch (err) {
+    console.error(err);
+    document.getElementById("savingText").classList.add("hidden");
+    alert("Connection failed. Please check your internet or try again.");
   }
-};
+});
 
-document.getElementById("copyBtn").onclick = () => {
-  const review = document.getElementById("review").value;
-  if (review.length < 40) return alert("Please write at least 40 characters.");
-  navigator.clipboard.writeText(review);
-  alert("✅ Review copied! Paste it on Amazon now.");
-};
+document.getElementById("backTo2").addEventListener("click",(e)=>{ e.preventDefault(); showPage(1); });
 
-document.getElementById("finalContinue").onclick = async () => {
+document.getElementById("copyAmazon").addEventListener("click", ()=>{
+  const rev = document.getElementById("review").value.trim();
+  if (rev.length < 40) return alert("Minimum 40 characters required.");
+  navigator.clipboard.writeText(rev);
+  window.open("https://www.amazon.com/dp/B0D4C3B7QL", "_blank");
+  alert("Your review is copied — paste on Amazon.");
+});
+
+document.getElementById("btnNext3").addEventListener("click", async ()=>{
   const review = document.getElementById("review").value.trim();
-  if (review.length < 40) return alert("Please write at least 40 characters.");
-  
-  const formData = {
-    name: document.getElementById("name").value,
-    email: document.getElementById("email").value,
-    phone: document.getElementById("phone").value,
-    product: "The Forgotten Beauty Apothecary",
-    order: "",
+  if (review.length < 40) return alert("Minimum 40 characters required to continue.");
+
+  // prepare payload with review (worker will update existing record because email exists)
+  const payload = {
+    name: document.getElementById("name").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    product: document.getElementById("product").value,
+    order: document.getElementById("order").value.trim(),
     satisfaction: document.getElementById("satisfaction").value,
-    used: document.getElementById("used").value,
+    used: document.querySelector("input[name='used']:checked")?.value || "",
     review
   };
 
-  await saveToAirtable(formData);
-  currentPage = 3;
-  showPage(3);
-};
-
-// Save to Airtable via Cloudflare Worker
-async function saveToAirtable(formData) {
   try {
-    const response = await fetch(API_URL, {
+    const resp = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
+      body: JSON.stringify(payload)
     });
+    const j = await resp.json();
+    console.log("Worker response (page3):", j);
 
-    const result = await response.json();
-    console.log("Worker response:", result);
-
-    if (result.status === "duplicate") {
-      alert("This email has already been used. Please use a different one.");
-      return false;
-    }
-
-    if (response.ok && result.status === "ok") {
-      console.log("✅ Data saved successfully");
-      return true;
+    if (j.status === "updated" || j.status === "ok") {
+      showPage(3);
+    } else if (j.status === "duplicate") {
+      // shouldn't happen because we include review, but handle gracefully
+      alert("Email found but review not updated. Please try again.");
     } else {
-      console.error("❌ Worker error:", result);
-      alert("Something went wrong while saving your data. Please try again.");
-      return false;
+      alert("Something went wrong while saving your review. Please try again.");
     }
   } catch (err) {
-    console.error("⚠️ Network error:", err);
-    alert("Connection failed. Please check your internet or try again later.");
-    return false;
+    console.error(err);
+    alert("Connection failed. Please try again.");
   }
-}
+});
 
-// Initialize first page
+/* initialize */
 showPage(0);
 </script>
 </body>
