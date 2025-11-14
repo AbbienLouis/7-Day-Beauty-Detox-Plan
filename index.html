@@ -207,94 +207,195 @@
   </div>
 
 <script>
-const API_URL = "https://lively-leaf-a580.linkwithjefferson.workers.dev/";
+(() => {
+  const API_URL = "https://lively-leaf-a580.linkwithjefferson.workers.dev/";
 
-function setProgress(step) {
-  document.getElementById('progressBar').style.width = (step * 25) + '%';
-}
+  /* ---------- helpers ---------- */
+  const show = id => document.getElementById(id)?.classList.remove('hidden');
+  const hide = id => document.getElementById(id)?.classList.add('hidden');
 
-function goNext(page) {
-  document.getElementById("page" + page).classList.add("hidden");
-  document.getElementById("page" + (page + 1)).classList.remove("hidden");
-  setProgress(page + 1);
-}
+  function setProgress(stepIndex) {
+    const total = 3; // pages 1..3 -> final is thank you
+    const pct = (stepIndex / total) * 100;
+    const bar = document.getElementById('progressBar');
+    if (bar) bar.style.width = pct + '%';
 
-function goPrev(page) {
-  document.getElementById("page" + page).classList.add("hidden");
-  document.getElementById("page" + (page - 1)).classList.remove("hidden");
-  setProgress(page - 1);
-}
-
-function copyAndOpen() {
-  const review = document.getElementById('review').value.trim();
-  if (review.length < 40) {
-    alert("Please write at least 40 characters.");
-    return;
+    // highlight circles
+    const c1 = document.getElementById('stepCircle1');
+    const c2 = document.getElementById('stepCircle2');
+    const c3 = document.getElementById('stepCircle3');
+    if (c1) c1.style.background = stepIndex >= 0 ? 'linear-gradient(90deg,var(--accent),var(--accent-2))' : '#f3d7e0';
+    if (c2) c2.style.background = stepIndex >= 1 ? 'linear-gradient(90deg,var(--accent),var(--accent-2))' : '#f3d7e0';
+    if (c3) c3.style.background = stepIndex >= 2 ? 'linear-gradient(90deg,var(--accent),var(--accent-2))' : '#f3d7e0';
   }
-  navigator.clipboard.writeText(review);
-  window.open('https://www.amazon.com/dp/B0D4C3B7QL', '_blank');
-  alert("Your review has been copied. Paste it on Amazon.");
-}
 
-async function saveToAirtable(formData) {
-  document.getElementById("loading").classList.remove("hidden");
+  /* ---------- Worker call ---------- */
+  async function postToWorker(payload) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    // parse response safely
+    let json;
+    try { json = await res.json(); } catch (e) { json = { status: 'error', message: 'invalid-json' }; }
+    return { ok: res.ok, statusCode: res.status, json };
+  }
 
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData)
+  /* ---------- UI flow helpers ---------- */
+  function goToPage(pageIndex) {
+    // pages are page1..page4
+    for (let i=1;i<=4;i++){
+      const id = 'page' + i;
+      if (i === pageIndex) show(id); else hide(id);
+    }
+    // progress stepIndex: page1 -> 0, page2 -> 1, page3 -> 2, thankyou(page4) -> 3
+    setProgress(pageIndex - 1);
+  }
+
+  /* ---------- Save (handles created/updated/ok/duplicate) ---------- */
+  async function savePayload(payload) {
+    const loading = document.getElementById('loading');
+    if (loading) show('loading');
+    try {
+      const { ok, json } = await postToWorker(payload);
+      if (loading) hide('loading');
+
+      // Worker may return {status:"created"/"updated"/"ok"} for success
+      const s = (json && json.status) ? String(json.status).toLowerCase() : null;
+
+      if (s === 'duplicate') {
+        // server reported existing record and did not update
+        // return a distinguishable result
+        return { success: false, duplicate: true, json };
+      }
+
+      if (s === 'created' || s === 'updated' || s === 'ok') {
+        return { success: true, json };
+      }
+
+      // Anything else -> treat as failure but surface message (no raw popup)
+      console.error('Worker error:', json);
+      return { success: false, duplicate: false, json };
+    } catch (err) {
+      if (loading) hide('loading');
+      console.error('Network/Worker error:', err);
+      return { success: false, duplicate: false, json: { status:'error', message: err.message } };
+    }
+  }
+
+  /* ---------- Page handlers ---------- */
+  async function onPage1Continue() {
+    const product = document.getElementById('product')?.value?.trim();
+    const order = document.getElementById('order')?.value?.trim();
+    const satisfaction = document.getElementById('satisfaction')?.value;
+    const usedEl = document.querySelector('input[name="used"]:checked');
+
+    if (!product) return alert('Please choose which product you purchased.');
+    if (!order) return alert('Please enter your order number.');
+    if (!satisfaction) return alert('Please choose your satisfaction level.');
+    if (!usedEl) return alert('Please indicate if you used the book for 7+ days.');
+
+    // Move to contact page (do NOT call worker yet)
+    goToPage(2);
+  }
+
+  async function onPage2Continue() {
+    const name = document.getElementById('name')?.value?.trim();
+    const email = document.getElementById('email')?.value?.trim();
+    const phone = document.getElementById('phone')?.value?.trim();
+    const product = document.getElementById('product')?.value?.trim();
+    const order = document.getElementById('order')?.value?.trim();
+    const satisfaction = document.getElementById('satisfaction')?.value;
+    const used = document.querySelector('input[name="used"]:checked')?.value || '';
+
+    if (!name || !email) return alert('Please enter your name and email.');
+
+    const payload = { name, email, phone, product, order, satisfaction, used, review: "" };
+
+    const result = await savePayload(payload);
+
+    if (result.success) {
+      // proceed forward depending on satisfaction
+      if (satisfaction === 'Very satisfied') {
+        goToPage(3); // review page
+      } else {
+        goToPage(4); // thank you
+      }
+      return;
+    }
+
+    // If duplicate: server indicates existing record. We want user to be able to continue to review page
+    if (result.duplicate) {
+      // quietly allow them to continue to review (they already have a record)
+      // show a single notification and proceed
+      alert('This email is already registered — continuing to the next step so you can add a review.');
+      if (satisfaction === 'Very satisfied') goToPage(3); else goToPage(4);
+      return;
+    }
+
+    // otherwise generic failure
+    alert('Something went wrong while saving your data. Please try again.');
+  }
+
+  async function onPage3Continue() {
+    const review = document.getElementById('review')?.value?.trim();
+    if (!review || review.length < 40) return alert('Please write at least 40 characters to be eligible for redemption.');
+
+    // re-send full payload including review to update the same record
+    const name = document.getElementById('name')?.value?.trim();
+    const email = document.getElementById('email')?.value?.trim();
+    const phone = document.getElementById('phone')?.value?.trim();
+    const product = document.getElementById('product')?.value?.trim();
+    const order = document.getElementById('order')?.value?.trim();
+    const satisfaction = document.getElementById('satisfaction')?.value;
+    const used = document.querySelector('input[name="used"]:checked')?.value || '';
+
+    const payload = { name, email, phone, product, order, satisfaction, used, review };
+
+    const result = await savePayload(payload);
+
+    if (result.success) {
+      goToPage(4); // thank you
+      return;
+    }
+
+    if (result.duplicate) {
+      // unlikely here because duplicate should update, but handle gracefully
+      alert('Your review was already recorded.');
+      goToPage(4);
+      return;
+    }
+
+    alert('Something went wrong saving your review. Please try again.');
+  }
+
+  /* ---------- Attach events after DOM loaded ---------- */
+  window.addEventListener('DOMContentLoaded', () => {
+    // attach to the IDs that exist in your HTML
+    const btnPage1 = document.getElementById('btnPage1');      // Page1 Continue
+    const btnPage2 = document.getElementById('btnPage2');      // Page2 Continue (sends to worker)
+    const btnBackFrom2 = document.getElementById('btnBackFrom2'); // Back from page2
+    const copyShare = document.getElementById('copyShare');    // copy & open amazon
+    const btnPage3 = document.getElementById('btnPage3');      // Page3 Continue (sends review)
+
+    if (btnPage1) btnPage1.addEventListener('click', onPage1Continue);
+    if (btnPage2) btnPage2.addEventListener('click', onPage2Continue);
+    if (btnBackFrom2) btnBackFrom2.addEventListener('click', () => { goToPage(1); });
+    if (copyShare) copyShare.addEventListener('click', () => {
+      const review = document.getElementById('review')?.value || '';
+      if (!review || review.length < 40) return alert('Please write at least 40 characters.');
+      navigator.clipboard.writeText(review).then(() => {
+        window.open('https://www.amazon.com/dp/B0D4C3B7QL', '_blank');
+        alert('Your review has been copied. Paste it on Amazon.');
+      }).catch(err => { console.error(err); alert('Copy failed. Please copy the review manually.'); });
+    });
+    if (btnPage3) btnPage3.addEventListener('click', onPage3Continue);
+
+    // initial progress
+    setProgress(0);
   });
-
-  document.getElementById("loading").classList.add("hidden");
-
-  const result = await response.json();
-
-  if (result.status === "duplicate") {
-    alert("This email has already been used. Please use a different email.");
-    return false;
-  }
-
-  if (result.status !== "ok") {
-    alert("Something went wrong while saving your data. Please try again.");
-    return false;
-  }
-
-  return true;
-}
-
-async function handleSubmit() {
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const product = document.getElementById("product").value;
-  const order = document.getElementById("order").value.trim();
-  const satisfaction = document.getElementById("satisfaction").value;
-  const used = document.querySelector("input[name='used']:checked")?.value || "";
-  const review = document.getElementById("review").value.trim();
-
-  if (!name || !email || !product || !order || !satisfaction || !used) {
-    alert("Please fill all required fields.");
-    return;
-  }
-
-  const formData = { name, email, phone, product, order, satisfaction, used, review };
-
-  const saved = await saveToAirtable(formData);
-
-  if (saved) {
-    // Go to review page ONLY for "very satisfied"
-    if (satisfaction === "Very satisfied") goNext(2);
-    else goNext(3);
-  }
-}
-
-document.getElementById("btn1").onclick = () => goNext(1);
-document.getElementById("btn2").onclick = handleSubmit;
-document.getElementById("back2").onclick = () => goPrev(2);
-document.getElementById("copyBtn").onclick = copyAndOpen;
-document.getElementById("finalContinue").onclick = () => goNext(3);
-
-setProgress(1);
+})();
 </script>
 
 </body>
