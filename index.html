@@ -1,231 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>7-Day Beauty Detox Plan</title>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #fffafc;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Forgotten Beauty — Funnel</title>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
 
-    .container {
-      max-width: 480px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
+  :root{
+    --accent:#d26e90;
+    --accent-2:#e49cb1;
+    --warm:#ffb36b;
+    --bg:#fff9f9;
+    --card:#fff;
+  }
 
-    h2 {
-      color: #d97aa6;
-      margin-bottom: 10px;
-    }
+  *{box-sizing:border-box}
+  body{
+    font-family:'Poppins',sans-serif;
+    background:var(--bg);
+    margin:0;
+    padding:20px;
+    color:#222;
+  }
 
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      font-size: 14px;
-      font-family: inherit;
-    }
+  .wrapper{
+    max-width:640px;
+    margin:24px auto;
+    background:var(--card);
+    border-radius:16px;
+    padding:28px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.06);
+  }
 
-    button {
-      background-color: #d97aa6;
-      color: white;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background-color: #b55b89;
-    }
+  h1{font-size:1.2rem; color:var(--accent); margin:8px 0 12px; text-align:center}
+  p{margin:8px 0 14px; color:#444}
 
-    .hidden {
-      display: none;
-    }
+  /* Steps / Progress */
+  .steps{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:16px;
+  }
+  .step {
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .circle {
+    width:26px; height:26px; border-radius:50%;
+    background:#f3d7e0; display:inline-flex; align-items:center; justify-content:center;
+    color:#fff; font-size:0.85rem; font-weight:700;
+  }
+  .step-label{font-size:0.85rem; color:#8b6b7a}
 
-    .progress {
-      width: 100%;
-      height: 8px;
-      background: #f0e1eb;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
+  .progress {
+    height:10px; width:100%; background:#f3d7e0; border-radius:999px; overflow:hidden; margin-bottom:18px;
+  }
+  .progress-bar {
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg,var(--accent),var(--accent-2));
+    transition: width 500ms cubic-bezier(.2,.9,.2,1);
+  }
 
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #d97aa6, #f0a6ca);
-      transition: width 0.5s ease-in-out;
-    }
+  .preview{ display:block; margin:16px auto; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
+  .preview.small{ width:55%; max-width:320px }
+  .preview.thumb{ width:40%; max-width:220px }
 
-    img.preview {
-      max-width: 100%;
-      border-radius: 12px;
-      margin: 15px 0;
-    }
+  label{font-weight:600; display:block; margin:8px 0 6px;}
+  input[type="text"], input[type="email"], select, textarea {
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid #e6e1e1; font-size:0.95rem;
+  }
+  textarea{ min-height:120px; resize:vertical }
 
-    #loading {
-      display: none;
-      margin-top: 15px;
-      color: #888;
-      font-size: 14px;
-    }
-  </style>
+  .note { color:red; font-size:0.9rem; margin-top:6px; }
+
+  .row{display:flex; gap:10px}
+  .col{flex:1}
+
+  .btn {
+    display:inline-block; width:100%; padding:12px; border-radius:12px; border:0; cursor:pointer;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#fff; font-weight:700; margin-top:12px;
+  }
+  .btn.secondary { background:#ff9900; color:#fff; }
+  .link { text-decoration:underline; color:var(--accent); cursor:pointer; display:inline-block; margin-top:10px }
+
+  .hidden { display:none !important; }
+
+  .loading{ text-align:center; color:var(--accent); font-weight:700; padding:12px }
+
+  @media (max-width:520px){
+    .wrapper{ padding:18px }
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+  <div class="wrapper">
+
+    <div class="steps">
+      <div class="step">
+        <div class="circle" id="stepCircle1">1</div>
+        <div class="step-label">Order & Satisfaction</div>
+      </div>
+      <div class="step">
+        <div class="circle" id="stepCircle2">2</div>
+        <div class="step-label">Contact</div>
+      </div>
+      <div class="step">
+        <div class="circle" id="stepCircle3">3</div>
+        <div class="step-label">Review</div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div id="progressBar" class="progress-bar"></div></div>
 
     <!-- PAGE 1 -->
     <div id="page1">
-      <h2>Step 1: Your Details</h2>
-      <img src="assets/form1.png" alt="Form step 1" class="preview" />
-      <input id="name" type="text" placeholder="Your Name" required />
-      <input id="email" type="email" placeholder="Your Email" required />
-      <input id="phone" type="text" placeholder="Your Phone (optional)" />
-      <button id="btn1">Continue →</button>
+      <h1>Complete the form to get your free E-book<br>“The 7-Day Beauty Detox Plan”</h1>
+
+      <img src="assets/ebook-preview.png" alt="7-Day Beauty Detox Plan" class="preview small" />
+
+      <label>Which product did you purchase?</label>
+      <select id="product">
+        <option value="">Select...</option>
+        <option value="None">None</option>
+        <option value="The Forgotten Beauty Apothecary">The Forgotten Beauty Apothecary</option>
+      </select>
+
+      <label>Order number</label>
+      <input id="order" type="text" placeholder="e.g. 113-5478902-2745635" />
+
+      <label>How satisfied are you with The Forgotten Beauty Apothecary?</label>
+      <select id="satisfaction">
+        <option value="">Select...</option>
+        <option value="Very satisfied">Very satisfied</option>
+        <option value="Somewhat satisfied">Somewhat satisfied</option>
+        <option value="Neither satisfied nor Dissatisfied">Neither satisfied nor Dissatisfied</option>
+        <option value="Somewhat Dissatisfied">Somewhat Dissatisfied</option>
+        <option value="Very Dissatisfied">Very Dissatisfied</option>
+      </select>
+
+      <label>Have you been using The Forgotten Beauty Apothecary for more than 7 days?</label>
+      <div>
+        <label style="font-weight:500"><input type="radio" name="used" value="Yes"> Yes</label>
+        <label style="font-weight:500; margin-left:12px"><input type="radio" name="used" value="No"> No</label>
+      </div>
+
+      <button id="btnPage1" class="btn">Continue</button>
     </div>
 
     <!-- PAGE 2 -->
     <div id="page2" class="hidden">
-      <h2>Step 2: Order Details</h2>
-      <img src="assets/form2.png" alt="Form step 2" class="preview" />
-      <select id="product">
-        <option value="">Select your product</option>
-        <option value="The Forgotten Beauty Apothecary">The Forgotten Beauty Apothecary</option>
-      </select>
-      <input id="order" type="text" placeholder="Order Number" required />
-      <select id="satisfaction">
-        <option value="">How satisfied are you?</option>
-        <option value="Very satisfied">Very satisfied</option>
-        <option value="Satisfied">Satisfied</option>
-        <option value="Neutral">Neutral</option>
-        <option value="Unsatisfied">Unsatisfied</option>
-      </select>
+      <h1>Claim Your Free E-book</h1>
+      <img src="assets/ebook-preview.png" alt="7-Day Beauty Detox Plan" class="preview small" />
 
-      <p>Did you use it for 7 days?</p>
-      <label><input type="radio" name="used" value="Yes"> Yes</label>
-      <label><input type="radio" name="used" value="No"> No</label>
+      <label>Your Name</label>
+      <input id="name" type="text" placeholder="Enter your name" />
 
-      <div style="margin-top:15px;">
-        <button id="back2">← Back</button>
-        <button id="btn2">Submit</button>
+      <label>Email Address</label>
+      <input id="email" type="email" placeholder="Enter your email" />
+
+      <p style="font-size:0.93rem; color:#666; margin-top:6px;">The 7-Day Beauty Detox Plan E-book will be sent to your E-mail address</p>
+
+      <label>Phone Number (optional)</label>
+      <input id="phone" type="text" placeholder="Optional" />
+
+      <div style="display:flex; gap:10px; margin-top:12px">
+        <button id="btnBackFrom2" class="btn" style="flex:1; background:#fff; color:var(--accent); border:1px solid #f0d6de">← Back</button>
+        <button id="btnPage2" class="btn" style="flex:1">Continue</button>
       </div>
-      <p id="loading">Submitting...</p>
+
+      <p id="loading" class="loading hidden">Saving your responses...</p>
     </div>
 
     <!-- PAGE 3 -->
     <div id="page3" class="hidden">
-      <h2>Step 3: Write Your Review</h2>
-      <textarea id="review" rows="5" placeholder="Write your 40+ character review here..."></textarea>
-      <button id="copyBtn">Copy & Review on Amazon →</button>
+      <img src="assets/ebook-preview.png" alt="7-Day Beauty Detox Plan" class="preview thumb" />
+      <h1 style="margin-top:8px">The 7-Day Beauty Detox Plan</h1>
+
+      <img src="assets/forgotten-beauty.png" alt="The Forgotten Beauty Apothecary" class="preview thumb" style="margin-top:12px" />
+
+      <label style="margin-top:12px">How did you like The Forgotten Beauty Apothecary?</label>
+      <p class="note">Minimum 40 characters to be eligible for redemption</p>
+      <textarea id="review" placeholder="Write your experience here..."></textarea>
+
+      <h3 style="margin-top:8px">Please Share Your Experience</h3>
+      <p style="color:#666; margin-bottom:8px">Click the button below to copy your written review and share it on Amazon</p>
+
+      <div style="display:flex; gap:10px">
+        <button id="copyShare" class="btn secondary" style="flex:1">Copy & Share on Amazon</button>
+        <button id="btnPage3" class="btn" style="flex:1">Continue</button>
+      </div>
     </div>
 
-    <!-- PAGE 4 -->
+    <!-- PAGE 4 (Thank you) -->
     <div id="page4" class="hidden">
-      <h2>Thank You!</h2>
-      <p>Your feedback has been recorded successfully 💖</p>
+      <h1>🎉 Thank You!</h1>
+      <p>Thank you for taking the time to fill the form, for purchasing <b>The Forgotten Beauty Apothecary</b> hardcover and for leaving a review.</p>
+      <p>Your free gift <b>“The 7-Day Beauty Detox Plan”</b> will be delivered to your chosen email address shortly — check spam if you don't receive it within 2 hours.</p>
     </div>
+
   </div>
 
-  <script>
-    const API_URL = "https://lively-leaf-a580.linkwithjefferson.workers.dev/";
+<script>
+/* ---------- CONFIG ---------- */
+// put your Worker URL here (no Airtable token here)
+const API_URL = "https://lively-leaf-a580.linkwithjefferson.workers.dev/";
 
-    function setProgress(step) {
-      document.getElementById('progressBar').style.width = ((step - 1) * 33) + '%';
+/* ---------- UI helpers ---------- */
+function show(id){ document.getElementById(id).classList.remove('hidden'); }
+function hide(id){ document.getElementById(id).classList.add('hidden'); }
+function setProgress(stepIndex){ // stepIndex: 0..3
+  const total = 3; // number steps (pages 1..3)
+  const pct = (stepIndex / total) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // highlight circles
+  document.getElementById('stepCircle1').style.background = stepIndex >= 0 ? 'linear-gradient(90deg,var(--accent),var(--accent-2))' : '#f3d7e0';
+  document.getElementById('stepCircle2').style.background = stepIndex >= 1 ? 'linear-gradient(90deg,var(--accent),var(--accent-2))' : '#f3d7e0';
+  document.getElementById('stepCircle3').style.background = stepIndex >= 2 ? 'linear-gradient(90deg,var(--accent),var(--accent-2))' : '#f3d7e0';
+}
+
+/* ---------- Worker / Airtable calls ---------- */
+/*
+Worker behavior expected:
+ - If no record exists with Email => create record and return { status: "created", id: "..."}
+ - If record exists => update that record with any non-empty fields provided and return { status: "updated", id: "..."}
+ - If duplicate detection occurs, function will update instead of creating duplicate.
+*/
+
+async function postToWorker(body) {
+  const r = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const json = await r.json().catch(() => ({ status: 'error', message: 'invalid-json' }));
+  return { ok: r.ok, statusCode: r.status, json };
+}
+
+/* ---------- Flow handlers ---------- */
+
+function page1ValidateAndNext() {
+  const product = document.getElementById('product').value.trim();
+  const order = document.getElementById('order').value.trim();
+  const satisfaction = document.getElementById('satisfaction').value;
+  const used = document.querySelector('input[name="used"]:checked');
+
+  if (!product) { alert('Please choose which product you purchased.'); return; }
+  if (!order) { alert('Please enter your order number.'); return; }
+  if (!satisfaction) { alert('Please choose your satisfaction level.'); return; }
+  if (!used) { alert('Please indicate if you used the book for 7+ days.'); return; }
+
+  // move to contact page
+  hide('page1'); show('page2');
+  setProgress(1);
+}
+
+async function page2SubmitAndNext() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const product = document.getElementById('product').value.trim();
+  const order = document.getElementById('order').value.trim();
+  const satisfaction = document.getElementById('satisfaction').value;
+  const used = document.querySelector('input[name="used"]:checked')?.value || '';
+
+  if (!name || !email) { alert('Please enter your name and email.'); return; }
+
+  // show loading
+  show('loading');
+
+  // Create or update (Worker will create if not exists, update if exists)
+  const payload = {
+    name, email, phone, product, order, satisfaction, used, review: ""
+  };
+
+  const { ok, json } = await postToWorker(payload);
+  hide('loading');
+
+  if (!ok) {
+    console.error('Worker error', json);
+    alert('Something went wrong while saving your data. Please try again.');
+    return;
+  }
+
+  // Worker returns status 'created' or 'updated'
+  if (json.status === 'created' || json.status === 'updated') {
+    // If satisfied = Very satisfied -> show review page; otherwise send them to thank you
+    hide('page2');
+    if (satisfaction === 'Very satisfied') {
+      show('page3');
+      setProgress(2);
+    } else {
+      show('page4');
+      setProgress(3);
     }
+  } else if (json.status === 'duplicate') {
+    // duplicate means record exists but Worker didn't update (shouldn't happen with updated Worker),
+    // but handle gracefully
+    alert('This email is already registered. If you need to add a review, continue to the review step.');
+    hide('page2'); show('page3'); setProgress(2);
+  } else {
+    console.error('Unexpected response', json);
+    alert('Save failed: ' + (json.message || JSON.stringify(json)));
+  }
+}
 
-    function goNext(page) {
-      document.getElementById('page' + page).classList.add('hidden');
-      document.getElementById('page' + (page + 1)).classList.remove('hidden');
-      setProgress(page + 1);
-    }
+async function page3SubmitReview() {
+  const review = document.getElementById('review').value.trim();
+  if (review.length < 40) { alert('Please write at least 40 characters to be eligible.'); return; }
 
-    function goPrev(page) {
-      document.getElementById('page' + page).classList.add('hidden');
-      document.getElementById('page' + (page - 1)).classList.remove('hidden');
-      setProgress(page - 1);
-    }
+  // get contact values so Worker can update same record
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const product = document.getElementById('product').value.trim();
+  const order = document.getElementById('order').value.trim();
+  const satisfaction = document.getElementById('satisfaction').value;
+  const used = document.querySelector('input[name="used"]:checked')?.value || '';
 
-    async function handleSubmit() {
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const product = document.getElementById("product").value;
-      const order = document.getElementById("order").value.trim();
-      const satisfaction = document.getElementById("satisfaction").value;
-      const used = document.querySelector("input[name='used']:checked")?.value || "";
+  show('loading');
 
-      if (!name || !email || !product || !order || !satisfaction || !used) {
-        alert("Please fill all required fields.");
-        return;
-      }
+  const payload = { name, email, phone, product, order, satisfaction, used, review };
 
-      document.getElementById("loading").style.display = "block";
+  const { ok, json } = await postToWorker(payload);
+  hide('loading');
 
-      const formData = { name, email, phone, product, order, satisfaction, used };
+  if (!ok) {
+    console.error('Worker error', json);
+    alert('Something went wrong while saving your review. Please try again.');
+    return;
+  }
 
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
-        });
+  if (json.status === 'updated' || json.status === 'created') {
+    hide('page3'); show('page4'); setProgress(3);
+  } else {
+    console.error('Unexpected response', json);
+    alert('Save failed: ' + (json.message || JSON.stringify(json)));
+  }
+}
 
-        const data = await res.json();
-        document.getElementById("loading").style.display = "none";
+/* ---------- Wire buttons ---------- */
+document.getElementById('btnPage1')?.addEventListener('click', page1ValidateAndNext);
+document.getElementById('btnPage2')?.addEventListener('click', page2SubmitAndNext);
+document.getElementById('btnBackFrom2')?.addEventListener('click', () => { hide('page2'); show('page1'); setProgress(0); });
 
-        if (data.status === "duplicate") {
-          alert("This email has already been used. Please use a different one.");
-          return;
-        }
+document.getElementById('copyShare')?.addEventListener('click', () => {
+  const review = document.getElementById('review').value || '';
+  if (review.length < 40) { alert('Please write at least 40 characters.'); return; }
+  navigator.clipboard.writeText(review).then(() => {
+    window.open('https://www.amazon.com/dp/B0D4C3B7QL', '_blank');
+    alert('Your review has been copied. Paste it on Amazon.');
+  });
+});
 
-        if (data.status === "ok") {
-          if (satisfaction === "Very satisfied") goNext(2);
-          else goNext(3);
-        } else {
-          alert("Something went wrong. Please try again.");
-        }
-      } catch (e) {
-        document.getElementById("loading").style.display = "none";
-        alert("Error: " + e.message);
-      }
-    }
+document.getElementById('btnPage3')?.addEventListener('click', page3SubmitReview);
 
-    function copyAndOpen() {
-      const review = document.getElementById('review').value.trim();
-      if (review.length < 40) {
-        alert('Please write at least 40 characters.');
-        return;
-      }
-      navigator.clipboard.writeText(review);
-      window.open('https://www.amazon.com/dp/B0D4C3B7QL', '_blank');
-      alert('Your review has been copied. Paste it on Amazon.');
-      goNext(3);
-    }
-
-    // Event Listeners
-    document.getElementById("btn1").onclick = () => goNext(1);
-    document.getElementById("btn2").onclick = handleSubmit;
-    document.getElementById("back2").onclick = () => goPrev(2);
-    document.getElementById("copyBtn").onclick = copyAndOpen;
-
-    setProgress(1);
-  </script>
+/* ---------- init ---------- */
+setProgress(0);
+</script>
 </body>
 </html>
-
